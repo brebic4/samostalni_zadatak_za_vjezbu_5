@@ -5,7 +5,7 @@
 ### 1️⃣Preuzimanje
 
 ```bash
-git clone <https://github.com/brebic4/samostalni_zadatak_za_vjezbu_5.git>
+git clone https://github.com/brebic4/samostalni_zadatak_za_vjezbu_5.git
 ```
 
 ## ⚙️ Backend – pokretanje
