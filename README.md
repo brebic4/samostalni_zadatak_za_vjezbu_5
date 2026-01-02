@@ -9,8 +9,7 @@ git clone https://github.com/brebic4/samostalni_zadatak_za_vjezbu_5.git
 cd samostalni_zadatak_za_vjezbu_5
 ```
 
-Dodaj .env datotetku (upute na Merlinu)
-
+Dodaj .env datotetku po uzoru na .env_example (podaci na Merlinu)
 
 ## ⚙️ Backend – pokretanje
 

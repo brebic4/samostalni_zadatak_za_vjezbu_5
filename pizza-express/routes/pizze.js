@@ -6,8 +6,9 @@ let db = await connectToDatabase();
 
 // GET /pizze - Dohvaćanje svih pizza iz baze podataka
 router.get("/", async (req, res) => {
-  let pizze_collection = await db.collection("pizze");
+  let pizze_collection = db.collection("pizze");
   let naziv_query = req.query.naziv;
+  let velicina_query = req.query.velicina;
   let cijena_min_query = req.query.cijena_min;
   let cijena_max_query = req.query.cijena_max;
   let sort_query = req.query.sort;
@@ -20,6 +21,38 @@ router.get("/", async (req, res) => {
       pipeline.push({
         $match: {
           naziv: { $regex: naziv_query, $options: "i" },
+        },
+      });
+    }
+
+    //odabir veličine i filtriranje po tome
+
+    //Ako odabrana veličina ne postoji, znači da je odabran prikaz svih veličina
+    if (velicina_query && (cijena_min_query || cijena_max_query)) {
+      const priceFilter = {};
+
+      if (cijena_min_query) {
+        priceFilter.$gte = Number(cijena_min_query);
+      }
+
+      if (cijena_max_query) {
+        priceFilter.$lte = Number(cijena_max_query);
+      }
+
+      pipeline.push({
+        $match: {
+          [`cijene.${velicina_query}`]: priceFilter,
+        },
+      });
+    }
+
+    //sort po cijeni samo ako postoji veličina
+    if (velicina_query && sort_query) {
+      const sortType = sort_query === "asc" ? 1 : -1;
+
+      pipeline.push({
+        $sort: {
+          [`cijene.${velicina_query}`]: sortType,
         },
       });
     }

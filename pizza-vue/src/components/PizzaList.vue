@@ -14,6 +14,77 @@
       />
     </div>
 
+    <!-- FILTERI -->
+    <div class="mb-8 flex flex-col gap-6 max-w-xl">
+      <!-- VELIČINA -->
+      <div>
+        <p class="font-semibold mb-2">Veličina pizze</p>
+        <div class="flex gap-4 flex-wrap">
+          <label class="flex items-center gap-1">
+            <input type="radio" value="" v-model="velicina" @change="fetchPizze" />
+            Prikaži sve
+          </label>
+
+          <label class="flex items-center gap-1">
+            <input type="radio" value="mala" v-model="velicina" @change="fetchPizze" />
+            Mala
+          </label>
+
+          <label class="flex items-center gap-1">
+            <input type="radio" value="srednja" v-model="velicina" @change="fetchPizze" />
+            Srednja
+          </label>
+
+          <label class="flex items-center gap-1">
+            <input type="radio" value="jumbo" v-model="velicina" @change="fetchPizze" />
+            Jumbo
+          </label>
+        </div>
+      </div>
+
+      <!-- SORT -->
+      <div>
+        <p class="font-semibold mb-2">Sortiranje po cijeni</p>
+        <div class="flex gap-4">
+          <label class="flex items-center gap-1">
+            <input type="radio" value="" v-model="sort" @change="fetchPizze" />
+            Bez sortiranja
+          </label>
+
+          <label class="flex items-center gap-1">
+            <input type="radio" value="asc" v-model="sort" @change="fetchPizze" />
+            Uzlazno
+          </label>
+
+          <label class="flex items-center gap-1">
+            <input type="radio" value="desc" v-model="sort" @change="fetchPizze" />
+            Silazno
+          </label>
+        </div>
+      </div>
+
+      <!-- CIJENE -->
+      <div class="flex gap-4">
+        <input
+          type="number"
+          v-model="cijenaMin"
+          @input="fetchPizze"
+          placeholder="Min cijena"
+          class="w-full p-2 border rounded"
+          :disabled="!velicina"
+        />
+
+        <input
+          type="number"
+          v-model="cijenaMax"
+          @input="fetchPizze"
+          placeholder="Max cijena"
+          class="w-full p-2 border rounded"
+          :disabled="!velicina"
+        />
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
       <div
         v-for="pizza in pizze"
@@ -137,6 +208,10 @@ const odabranaPizza = ref(null)
 const pizze = ref([])
 const emit = defineEmits(['order-status'])
 const searchNaziv = ref('')
+const velicina = ref('') // "" = Prikaži sve (default)
+const sort = ref('') // "" = bez sortiranja
+const cijenaMin = ref('')
+const cijenaMax = ref('')
 
 function odaberiPizzu(pizza) {
   odabranaPizza.value = pizza
@@ -145,10 +220,28 @@ function odaberiPizzu(pizza) {
 
 async function fetchPizze() {
   try {
+    const params = {}
+
+    if (searchNaziv.value) {
+      params.naziv = searchNaziv.value
+    }
+
+    if (velicina.value) {
+      params.velicina = velicina.value
+
+      if (cijenaMin.value) params.cijena_min = cijenaMin.value
+      if (cijenaMax.value) params.cijena_max = cijenaMax.value
+      if (sort.value) params.sort = sort.value
+    }
+
+    if (velicina.value == '') {
+      sort.value = ''
+      cijenaMin.value = ''
+      cijenaMax.value = ''
+    }
+
     const response = await axios.get('http://localhost:3000/pizze', {
-      params: {
-        naziv: searchNaziv.value || undefined,
-      },
+      params: Object.keys(params).length ? params : undefined,
     })
     pizze.value = response.data
     console.log(pizze.value)
